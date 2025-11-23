@@ -12,6 +12,7 @@ use sqlx::types::chrono::NaiveDateTime;
 use sqlx::{Acquire, Executor, Sqlite, SqlitePool, Transaction};
 use tokio::sync::mpsc::Sender;
 use tracing::{error, instrument, warn};
+use serde_json::json;
 
 #[derive(Debug, Clone)]
 struct CalendarObjectRow {
@@ -90,6 +91,7 @@ impl From<CalendarRow> for Calendar {
 #[derive(Debug, Constructor)]
 pub struct SqliteCalendarStore {
     db: SqlitePool,
+    webhook_url: Option<String>,
     sender: Sender<CollectionOperation>,
 }
 
@@ -543,6 +545,14 @@ impl SqliteCalendarStore {
 
         Ok((objects, deleted_objects, new_synctoken))
     }
+
+    async fn trigger_webhook(url: String, payload: serde_json::Value) {
+        let _ = reqwest::Client::new()
+            .post(url)
+            .json(&payload)
+            .send()
+            .await;
+    }
 }
 
 #[async_trait]
@@ -755,6 +765,18 @@ impl CalendarStore for SqliteCalendarStore {
 
         Self::_put_object(&mut *tx, &principal, &cal_id, &object, overwrite).await?;
 
+        // Trigger webhook if configured
+        if let Some(url) = &self.webhook_url {
+            let payload = json!({
+                "event": "object.updated",
+                "principal": principal,
+                "calendar_id": cal_id,
+                "uid": object.uid,
+            });
+
+            tokio::spawn(trigger_webhook(url.clone(), payload));
+        }
+
         let sync_token = log_object_operation(
             &mut tx,
             &principal,
@@ -793,6 +815,18 @@ impl CalendarStore for SqliteCalendarStore {
             .map_err(crate::Error::from)?;
 
         Self::_delete_object(&mut *tx, principal, cal_id, id, use_trashbin).await?;
+        
+        // Trigger webhook if configured
+        if let Some(url) = &self.webhook_url {
+            let payload = json!({
+                "event": "object.updated",
+                "principal": principal,
+                "calendar_id": cal_id,
+                "uid": object.uid,
+            });
+
+            tokio::spawn(trigger_webhook(url.clone(), payload));
+        }
 
         let sync_token =
             log_object_operation(&mut tx, principal, cal_id, id, ChangeOperation::Delete).await?;
@@ -821,6 +855,18 @@ impl CalendarStore for SqliteCalendarStore {
             .map_err(crate::Error::from)?;
 
         Self::_restore_object(&mut *tx, principal, cal_id, object_id).await?;
+
+        // Trigger webhook if configured
+        if let Some(url) = &self.webhook_url {
+            let payload = json!({
+                "event": "object.updated",
+                "principal": principal,
+                "calendar_id": cal_id,
+                "uid": object.uid,
+            });
+
+            tokio::spawn(trigger_webhook(url.clone(), payload));
+        }
 
         let sync_token =
             log_object_operation(&mut tx, principal, cal_id, object_id, ChangeOperation::Add)

@@ -18,10 +18,12 @@ pub struct TestStoreContext {
     pub dav_push_store: SqliteDavPushStore,
 }
 
+<<<<<<< HEAD
 #[fixture]
 pub async fn test_store_context() -> TestStoreContext {
     let (send_addr, _recv) = tokio::sync::mpsc::channel(1);
     let (send_cal, _recv) = tokio::sync::mpsc::channel(1);
+    let (wh_send, _recv) = tokio::sync::mpsc::channel(1);
     let db = create_db_pool(":memory:", true).await.unwrap();
 
     let principal_store = SqlitePrincipalStore::new(db.clone());
@@ -46,8 +48,8 @@ pub async fn test_store_context() -> TestStoreContext {
 
     TestStoreContext {
         db: db.clone(),
-        addr_store: SqliteAddressbookStore::new(db.clone(), send_addr, false),
-        cal_store: SqliteCalendarStore::new(db.clone(), send_cal, false),
+        addr_store: SqliteAddressbookStore::new(db.clone(), send_addr, false, wh_send.clone()),
+        cal_store: SqliteCalendarStore::new(db.clone(), send_cal, false, wh_send),
         principal_store,
         dav_push_store: SqliteDavPushStore::new(db),
     }

@@ -18,7 +18,6 @@ pub struct TestStoreContext {
     pub dav_push_store: SqliteDavPushStore,
 }
 
-<<<<<<< HEAD
 #[fixture]
 pub async fn test_store_context() -> TestStoreContext {
     let (send_addr, _recv) = tokio::sync::mpsc::channel(1);

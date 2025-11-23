@@ -138,6 +138,7 @@ reqwest = { version = "0.12", features = [
   "rustls-tls",
   "charset",
   "http2",
+  "json"
 ], default-features = false }
 openidconnect = "4.0"
 clap = { version = "4.5", features = ["derive", "env"] }

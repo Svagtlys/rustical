@@ -31,4 +31,4 @@ uuid.workspace = true
 pbkdf2.workspace = true
 rustical_ical.workspace = true
 rstest = { workspace = true, optional = true }
-reqwest.workspace = { workspace = true, features = ["json"] }
+reqwest.workspace = true

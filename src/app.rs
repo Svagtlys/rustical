@@ -18,6 +18,7 @@ use rustical_oidc::OidcConfig;
 use rustical_store::auth::AuthenticationProvider;
 use rustical_store::{
     AddressbookStore, CalendarStore, CombinedCalendarStore, PrefixedCalendarStore,
+    WebhookSubscriptionStore,
 };
 use std::sync::Arc;
 use std::time::Duration;
@@ -39,16 +40,19 @@ pub fn make_app<
     AS: AddressbookStore + PrefixedCalendarStore,
     CS: CalendarStore,
     DP: DavPushStore,
+    W: WebhookSubscriptionStore,
 >(
     addr_store: Arc<AS>,
     cal_store: Arc<CS>,
     dav_push_store: Arc<DP>,
+    webhook_subscription_store: Arc<W>,
     auth_provider: Arc<impl AuthenticationProvider>,
     frontend_config: FrontendConfig,
     oidc_config: Option<OidcConfig>,
     caldav_config: CalDavConfig,
     nextcloud_login_config: &NextcloudLoginConfig,
     dav_push_enabled: bool,
+    webhook_enabled: bool,
     session_cookie_samesite_strict: bool,
     payload_limit_mb: usize,
 ) -> Router<()> {
@@ -140,6 +144,12 @@ pub fn make_app<
     if dav_push_enabled {
         router = router.merge(rustical_dav_push::subscription_service(dav_push_store));
     }
+
+    if webhook_enabled {
+        // Webhook creation/deletion endpoints
+        router = router.merge(rustical_webhooks::webhook_subscription_router(webhook_subscription_store));
+    }
+
 
     router
         .layer(

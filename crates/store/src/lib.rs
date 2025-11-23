@@ -8,6 +8,7 @@ pub mod auth;
 mod calendar;
 mod combined_calendar_store;
 mod secret;
+mod webhook_subscription_store;
 pub mod synctoken;
 
 #[cfg(test)]
@@ -17,7 +18,7 @@ pub use addressbook_store::*;
 pub use calendar_store::*;
 pub use combined_calendar_store::{CombinedCalendarStore, PrefixedCalendarStore};
 pub use secret::Secret;
-
+pub use webhook_subscription_store::*;
 pub use addressbook::Addressbook;
 pub use calendar::{Calendar, CalendarMetadata};
 

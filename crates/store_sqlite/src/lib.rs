@@ -13,6 +13,7 @@ pub use dav_push_store::SqliteDavPushStore;
 pub mod error;
 mod principal_store;
 pub use principal_store::SqlitePrincipalStore;
+pub mod webhook_subscription_store;
 
 // Begin statement for write transactions
 pub const BEGIN_IMMEDIATE: &str = "BEGIN IMMEDIATE";

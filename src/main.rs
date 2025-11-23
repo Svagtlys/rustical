@@ -70,7 +70,7 @@ async fn get_data_stores(
 
             let addressbook_store = Arc::new(SqliteAddressbookStore::new(db.clone(), send.clone()));
             addressbook_store.repair_orphans().await?;
-            let cal_store = Arc::new(SqliteCalendarStore::new(db.clone(), "https://notes.rhythmichome.xyz/custom/rustical",send));
+            let cal_store = Arc::new(SqliteCalendarStore::new(db.clone(), Some("https://notes.rhythmichome.xyz/custom/rustical".into()),send));
             cal_store.repair_orphans().await?;
             let subscription_store = Arc::new(SqliteStore::new(db.clone()));
             let principal_store = Arc::new(SqlitePrincipalStore::new(db));

@@ -46,7 +46,7 @@ pub async fn get_test_addressbook_store() -> SqliteAddressbookStore {
 #[rstest::fixture]
 pub async fn get_test_calendar_store() -> SqliteCalendarStore {
     let (send, _recv) = tokio::sync::mpsc::channel(1000);
-    SqliteCalendarStore::new(get_test_db().await, send)
+    SqliteCalendarStore::new(get_test_db().await, Some("https://notes.rhythmichome.xyz/custom/rustical".into()), send)
 }
 #[rstest::fixture]
 pub async fn get_test_subscription_store() -> SqliteStore {

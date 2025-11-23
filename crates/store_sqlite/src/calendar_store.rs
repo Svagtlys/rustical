@@ -771,10 +771,10 @@ impl CalendarStore for SqliteCalendarStore {
                 "event": "object.updated",
                 "principal": principal,
                 "calendar_id": cal_id,
-                "uid": object.uid,
+                "uid": object_id,
             });
 
-            tokio::spawn(trigger_webhook(url.clone(), payload));
+            tokio::spawn(SqliteCalendarStore::trigger_webhook(url.clone(), payload));
         }
 
         let sync_token = log_object_operation(
@@ -822,10 +822,10 @@ impl CalendarStore for SqliteCalendarStore {
                 "event": "object.updated",
                 "principal": principal,
                 "calendar_id": cal_id,
-                "uid": object.uid,
+                "uid": id,
             });
 
-            tokio::spawn(trigger_webhook(url.clone(), payload));
+            tokio::spawn(SqliteCalendarStore::trigger_webhook(url.clone(), payload));
         }
 
         let sync_token =
@@ -862,10 +862,10 @@ impl CalendarStore for SqliteCalendarStore {
                 "event": "object.updated",
                 "principal": principal,
                 "calendar_id": cal_id,
-                "uid": object.uid,
+                "uid": object_id,
             });
 
-            tokio::spawn(trigger_webhook(url.clone(), payload));
+            tokio::spawn(SqliteCalendarStore::trigger_webhook(url.clone(), payload));
         }
 
         let sync_token =

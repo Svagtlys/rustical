@@ -3710,6 +3710,8 @@ dependencies = [
  "rustical_oidc",
  "rustical_store",
  "rustical_store_sqlite",
+ "rustical_types",
+ "rustical_webhooks",
  "serde",
  "similar-asserts",
  "sqlx",
@@ -3951,6 +3953,7 @@ dependencies = [
  "rustical_dav",
  "rustical_ical",
  "rustical_store_sqlite",
+ "rustical_types",
  "rustical_xml",
  "serde",
  "sha2 0.11.0",
@@ -3981,6 +3984,7 @@ dependencies = [
  "rustical_dav_push",
  "rustical_ical",
  "rustical_store",
+ "rustical_types",
  "serde",
  "sha2 0.11.0",
  "sqlx",
@@ -3988,6 +3992,31 @@ dependencies = [
  "tokio",
  "tracing",
  "uuid",
+]
+
+[[package]]
+name = "rustical_types"
+version = "0.10.5"
+dependencies = [
+ "serde_json",
+]
+
+[[package]]
+name = "rustical_webhooks"
+version = "0.10.5"
+dependencies = [
+ "axum",
+ "base64 0.22.1",
+ "hmac",
+ "http",
+ "reqwest",
+ "rustical_ical",
+ "rustical_store",
+ "rustical_types",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tokio",
 ]
 
 [[package]]

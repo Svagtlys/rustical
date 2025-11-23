@@ -9,11 +9,18 @@ use config::{DataStoreConfig, SqliteDataStoreConfig};
 use provided_listeners::ProvidedListeners;
 use rustical_dav_push::{DavPushService, DavPushStore, VapidStore};
 use rustical_store::auth::AuthenticationProvider;
-use rustical_store::{AddressbookStore, CalendarStore, CollectionOperation, PrefixedCalendarStore};
+use rustical_store::{
+    AddressbookStore, CalendarStore, CollectionOperation, PrefixedCalendarStore,
+    WebhookSubscriptionStore,
+};
 use rustical_store_sqlite::SqliteAddressbookStore;
 use rustical_store_sqlite::SqliteCalendarStore;
 use rustical_store_sqlite::SqlitePrincipalStore;
-use rustical_store_sqlite::{SqliteDavPushStore, create_db_pool};
+use rustical_store_sqlite::{
+    SqliteDavPushStore, SqliteWebhookSubscriptionStore, create_db_pool,
+};
+use rustical_types::WebhookEvent;
+use rustical_webhooks::controller::WebhookController;
 use setup_tracing::setup_tracing;
 use std::fs;
 use std::os::unix::fs::FileTypeExt;
@@ -63,8 +70,10 @@ pub async fn get_data_stores(
     Arc<impl AddressbookStore + PrefixedCalendarStore>,
     Arc<impl CalendarStore>,
     Arc<impl DavPushStore>,
+    Arc<impl WebhookSubscriptionStore>,
     Arc<impl AuthenticationProvider>,
     Receiver<CollectionOperation>,
+    Receiver<WebhookEvent>,
 )> {
     Ok(match &config {
         DataStoreConfig::Sqlite(SqliteDataStoreConfig {
@@ -76,13 +85,21 @@ pub async fn get_data_stores(
 
             // Channel to watch for changes (for DAV Push)
             let (send, recv) = tokio::sync::mpsc::channel(1000);
+            // Channel to send webhook events
+            let (webhook_send, webhook_recv) = tokio::sync::mpsc::channel::<WebhookEvent>(1000);
 
             let addressbook_store = Arc::new(SqliteAddressbookStore::new(
                 db.clone(),
                 send.clone(),
                 *skip_broken,
+                webhook_send.clone(),
             ));
-            let cal_store = Arc::new(SqliteCalendarStore::new(db.clone(), send, *skip_broken));
+            let cal_store = Arc::new(SqliteCalendarStore::new(
+                db.clone(),
+                send,
+                *skip_broken,
+                webhook_send,
+            ));
             if *run_repairs {
                 info!("Running repair tasks");
                 addressbook_store.repair_orphans().await?;
@@ -92,6 +109,7 @@ pub async fn get_data_stores(
             let dav_push_store = Arc::new(SqliteDavPushStore::new(db.clone()));
             // Run key generation in advance to populate local cache
             dav_push_store.initialise().await?;
+            let webhook_subscription_store = Arc::new(SqliteWebhookSubscriptionStore::new(db.clone()));
             let principal_store = Arc::new(SqlitePrincipalStore::new(db));
 
             // Validate all calendar objects
@@ -104,8 +122,10 @@ pub async fn get_data_stores(
                 addressbook_store,
                 cal_store,
                 dav_push_store,
+                webhook_subscription_store,
                 principal_store,
                 recv,
+                webhook_recv,
             )
         }
     })
@@ -122,8 +142,15 @@ pub async fn cmd_serve(
         setup_tracing(&config.tracing);
     }
 
-    let (addr_store, cal_store, dav_push_store, principal_store, update_recv) =
-        get_data_stores(!args.no_migrations, &config.data_store).await?;
+    let (
+        addr_store,
+        cal_store,
+        dav_push_store,
+        webhook_subscription_store,
+        principal_store,
+        update_recv,
+        webhook_recv,
+    ) = get_data_stores(!args.no_migrations, &config.data_store).await?;
 
     if config.dav_push.enabled {
         let vapid_key = dav_push_store.get_vapid_keypair().await?;
@@ -138,16 +165,26 @@ pub async fn cmd_serve(
         });
     }
 
+    if config.webhook.enabled {
+        let webhook_controller =
+            WebhookController::new(webhook_recv, webhook_subscription_store.clone());
+        tokio::spawn(async move {
+            webhook_controller.run().await;
+        });
+    }
+
     let app = make_app(
         addr_store.clone(),
         cal_store.clone(),
         dav_push_store.clone(),
+        webhook_subscription_store.clone(),
         principal_store.clone(),
         config.frontend.clone(),
         config.oidc.clone(),
         config.caldav,
         &config.nextcloud_login,
         config.dav_push.enabled,
+        config.webhook.enabled,
         config.http.session_cookie_samesite_strict,
         config.http.payload_limit_mb,
     );

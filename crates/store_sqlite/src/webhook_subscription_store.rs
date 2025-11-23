@@ -1,10 +1,22 @@
-use crate::SqliteStore;
 use async_trait::async_trait;
 use rustical_store::{Error, WebhookSubscriptionStore};
 use rustical_types::WebhookSubscription;
+use sqlx::SqlitePool;
+
+#[derive(Debug, Clone)]
+pub struct SqliteWebhookSubscriptionStore {
+    db: SqlitePool,
+}
+
+impl SqliteWebhookSubscriptionStore {
+    #[must_use]
+    pub fn new(db: SqlitePool) -> Self {
+        Self { db }
+    }
+}
 
 #[async_trait]
-impl WebhookSubscriptionStore for SqliteStore {
+impl WebhookSubscriptionStore for SqliteWebhookSubscriptionStore {
     async fn get_subscriptions(&self, resource_type: &str, resource_id: &str) -> Result<Vec<WebhookSubscription>, Error>{
         Ok(sqlx::query_as!(
             WebhookSubscription,

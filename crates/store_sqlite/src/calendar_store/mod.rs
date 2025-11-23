@@ -17,6 +17,7 @@ use sqlx::types::chrono::NaiveDateTime;
 use sqlx::{Acquire, Executor, Sqlite, SqlitePool, Transaction};
 use tokio::sync::mpsc::Sender;
 use tracing::{error, error_span, instrument, warn};
+use rustical_types::WebhookEvent;
 
 #[cfg(test)]
 mod tests;
@@ -116,6 +117,7 @@ pub struct SqliteCalendarStore {
     db: SqlitePool,
     sender: Sender<CollectionOperation>,
     skip_broken: bool,
+    webhook_sender: Sender<WebhookEvent>,
 }
 
 impl SqliteCalendarStore {
@@ -652,6 +654,7 @@ impl SqliteCalendarStore {
         .await
         .map_err(crate::Error::from)?;
 
+
         Ok(())
     }
 
@@ -683,6 +686,7 @@ impl SqliteCalendarStore {
             .await
             .map_err(crate::Error::from)?;
         }
+
         Ok(())
     }
 
@@ -701,6 +705,7 @@ impl SqliteCalendarStore {
         )
         .execute(executor)
         .await.map_err(crate::Error::from)?;
+
         Ok(())
     }
 
@@ -1040,6 +1045,14 @@ impl CalendarWriteStore for SqliteCalendarStore {
                 self.get_calendar(principal, cal_id, true).await?.push_topic,
             );
         }
+
+        let _ = self.webhook_sender.send(WebhookEvent::CalendarObjectUpsert {
+            resource_id: cal_id.to_string(),
+            object_uid: object_id.to_string(),
+            timestamp: chrono::Utc::now().timestamp(),
+            ics_data: object.get_ics().to_string(),
+        }).await;
+
         Ok(())
     }
 
@@ -1069,6 +1082,11 @@ impl CalendarWriteStore for SqliteCalendarStore {
             self.get_calendar(principal, cal_id, true).await?.push_topic,
         );
 
+        let _ = self.webhook_sender.send(WebhookEvent::CalendarObjectDelete {
+            resource_id: cal_id.to_string(),
+            object_uid: id.to_string(),
+            timestamp: chrono::Utc::now().timestamp(),
+        }).await;
         Ok(())
     }
 
@@ -1096,6 +1114,12 @@ impl CalendarWriteStore for SqliteCalendarStore {
             CollectionOperationInfo::Content { sync_token },
             self.get_calendar(principal, cal_id, true).await?.push_topic,
         );
+
+        let _ = self.webhook_sender.send(WebhookEvent::CalendarObjectRestore {
+            resource_id: cal_id.to_string(),
+            object_uid: object_id.to_string(),
+            timestamp: chrono::Utc::now().timestamp(),
+        }).await;
         Ok(())
     }
 }

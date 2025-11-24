@@ -359,6 +359,20 @@ ul.collection-list {
         margin-top: .3em;
       }
 
+      .actions form { /* remove default block spacing that shifts button */
+        margin: 0;
+        display: flex;
+        align-items: center;
+      }
+
+      .actions edit-calendar-form,
+      .actions edit-webhooks-form,
+      .actions edit-addressbook-form,
+      .actions delete-button { /* ensure consistent inline layout */
+        display: flex;
+        align-items: center;
+      }
+
       .color-chip {
         grid-area: color-chip;
         background: var(--color, transparent);

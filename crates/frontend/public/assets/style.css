@@ -359,16 +359,11 @@ ul.collection-list {
         margin-top: .3em;
       }
 
-      .actions form { /* remove default block spacing that shifts button */
-        margin: 0;
-        display: flex;
-        align-items: center;
-      }
-
+      .actions form,
       .actions edit-calendar-form,
       .actions edit-webhooks-form,
-      .actions edit-addressbook-form,
-      .actions delete-button { /* ensure consistent inline layout */
+      .actions delete-button { /* remove default block spacing that shifts button */
+        margin: 0;
         display: flex;
         align-items: center;
       }
@@ -610,6 +605,30 @@ svg.icon {
   color: currentColor;
   stroke: currentColor;
 }
+
+/* Explicit non-nested selectors to ensure alignment applies even without CSS nesting support */
+.inner .actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.inner .actions form {
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.inner .actions > * {
+  display: flex;
+  align-items: center;
+}
+
+.inner .actions button {
+  align-self: center;
+  margin: 0;
+}
+
 
 footer {
   display: flex;

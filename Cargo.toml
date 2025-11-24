@@ -142,6 +142,7 @@ similar-asserts = "2.0"
 insta = { version = "1.48", features = ["filters"] }
 criterion = { version = "0.8", features = ["async_tokio"] }
 web-push = { git = "https://github.com/lennart-k/rust-web-push" }
+uuid = { version = "1", features = ["v4"] }
 
 [dev-dependencies]
 rstest.workspace = true

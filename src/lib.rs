@@ -7,13 +7,13 @@ use axum::extract::Request;
 use clap::{Parser, Subcommand};
 use config::{DataStoreConfig, SqliteDataStoreConfig};
 use provided_listeners::ProvidedListeners;
-use rustical_dav_push::{DavPushController, DavPushStore};
+use rustical_dav_push::{DavPushService, DavPushStore, VapidStore};
 use rustical_store::auth::AuthenticationProvider;
 use rustical_store::{AddressbookStore, CalendarStore, CollectionOperation, PrefixedCalendarStore};
-use rustical_store_sqlite::addressbook_store::SqliteAddressbookStore;
-use rustical_store_sqlite::calendar_store::SqliteCalendarStore;
-use rustical_store_sqlite::principal_store::SqlitePrincipalStore;
-use rustical_store_sqlite::{SqliteStore, create_db_pool};
+use rustical_store_sqlite::SqliteAddressbookStore;
+use rustical_store_sqlite::SqliteCalendarStore;
+use rustical_store_sqlite::SqlitePrincipalStore;
+use rustical_store_sqlite::{SqliteDavPushStore, create_db_pool};
 use setup_tracing::setup_tracing;
 use std::fs;
 use std::os::unix::fs::FileTypeExt;
@@ -89,7 +89,9 @@ pub async fn get_data_stores(
                 cal_store.repair_invalid_version_4_0().await?;
                 cal_store.repair_orphans().await?;
             }
-            let subscription_store = Arc::new(SqliteStore::new(db.clone()));
+            let dav_push_store = Arc::new(SqliteDavPushStore::new(db.clone()));
+            // Run key generation in advance to populate local cache
+            dav_push_store.initialise().await?;
             let principal_store = Arc::new(SqlitePrincipalStore::new(db));
 
             // Validate all calendar objects
@@ -101,7 +103,7 @@ pub async fn get_data_stores(
             (
                 addressbook_store,
                 cal_store,
-                subscription_store,
+                dav_push_store,
                 principal_store,
                 recv,
             )
@@ -120,24 +122,26 @@ pub async fn cmd_serve(
         setup_tracing(&config.tracing);
     }
 
-    let (addr_store, cal_store, subscription_store, principal_store, update_recv) =
+    let (addr_store, cal_store, dav_push_store, principal_store, update_recv) =
         get_data_stores(!args.no_migrations, &config.data_store).await?;
 
     if config.dav_push.enabled {
-        let dav_push_controller = DavPushController::new(
+        let vapid_key = dav_push_store.get_vapid_keypair().await?;
+        let dav_push_service = DavPushService::new(
             config.dav_push.allowed_push_servers,
-            subscription_store.clone(),
-        );
+            dav_push_store.clone(),
+            vapid_key.clone(),
+        )?;
         // Atm we never join this task
         tokio::spawn(async move {
-            dav_push_controller.notifier(update_recv).await;
+            dav_push_service.notifier_loop(update_recv).await;
         });
     }
 
     let app = make_app(
         addr_store.clone(),
         cal_store.clone(),
-        subscription_store.clone(),
+        dav_push_store.clone(),
         principal_store.clone(),
         config.frontend.clone(),
         config.oidc.clone(),

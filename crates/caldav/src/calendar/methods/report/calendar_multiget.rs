@@ -1,5 +1,3 @@
-use std::str::FromStr;
-
 use crate::{Error, calendar_object::CalendarObjectPropWrapperName};
 use http::Uri;
 use rustical_dav::{resolve_child_uri, xml::PropfindType};
@@ -15,7 +13,7 @@ pub struct CalendarMultigetRequest {
     pub(crate) prop: PropfindType<CalendarObjectPropWrapperName>,
     #[xml(flatten)]
     #[xml(ns = "rustical_dav::namespace::NS_DAV")]
-    pub(crate) href: Vec<String>,
+    pub(crate) href: Vec<Uri>,
 }
 
 pub async fn get_objects_calendar_multiget<C: CalendarReadStore>(
@@ -24,16 +22,12 @@ pub async fn get_objects_calendar_multiget<C: CalendarReadStore>(
     principal: &str,
     cal_id: &str,
     store: &C,
-) -> Result<(Vec<(String, CalendarObject)>, Vec<String>), Error> {
+) -> Result<(Vec<(String, CalendarObject)>, Vec<Uri>), Error> {
     let mut result = vec![];
     let mut not_found = vec![];
 
     for href in &request.href {
-        let Ok(child_uri) = Uri::from_str(href) else {
-            not_found.push(href.clone());
-            continue;
-        };
-        let Some(subpath) = resolve_child_uri(collection_uri, &child_uri) else {
+        let Some(subpath) = resolve_child_uri(collection_uri, href) else {
             not_found.push(href.clone());
             continue;
         };
@@ -175,13 +169,23 @@ END:VCALENDAR"
         let req = CalendarMultigetRequest {
             prop: rustical_dav::xml::PropfindType::Propname,
             href: vec![
-                "/caldav/principal/user%40example%2Ecom/cal/hello.ics".to_string(),
-                "/caldav/principal/user@example.com/cal/unescaped.ics".to_string(),
-                "/caldav/principal/user%40example.com/cal/shouldwork.ics".to_string(),
-                "/caldav/principal/user%40example.com/cal/notfound".to_string(),
-                "/caldav/principal/user%40example%2Ecom/nocal/hello.ics".to_string(),
-                "asd asd".to_string(),
-                "/caldav/principal/user%40example.com/cal".to_string(),
+                "/caldav/principal/user%40example%2Ecom/cal/hello.ics"
+                    .parse()
+                    .unwrap(),
+                "/caldav/principal/user@example.com/cal/unescaped.ics"
+                    .parse()
+                    .unwrap(),
+                "/caldav/principal/user%40example.com/cal/shouldwork.ics"
+                    .parse()
+                    .unwrap(),
+                "/caldav/principal/user%40example.com/cal/notfound"
+                    .parse()
+                    .unwrap(),
+                "/caldav/principal/user%40example%2Ecom/nocal/hello.ics"
+                    .parse()
+                    .unwrap(),
+                "/asd%20asd".parse().unwrap(),
+                "/caldav/principal/user%40example.com/cal".parse().unwrap(),
             ],
         };
 
@@ -198,23 +202,27 @@ END:VCALENDAR"
         .await
         .unwrap();
 
-        let found: Vec<String> = result.into_iter().map(|(href, _)| href).collect();
+        let found: Vec<String> = result.into_iter().map(|(object_id, _)| object_id).collect();
         similar_asserts::assert_eq!(
             found,
             vec![
                 "hello".to_string(),
                 "unescaped".to_string(),
-                "shouldwork".to_string()
+                "shouldwork".to_string(),
             ]
         );
 
         similar_asserts::assert_eq!(
             not_found,
             vec![
-                "/caldav/principal/user%40example.com/cal/notfound".to_string(),
-                "/caldav/principal/user%40example%2Ecom/nocal/hello.ics".to_string(),
-                "asd asd".to_string(),
-                "/caldav/principal/user%40example.com/cal".to_string(),
+                "/caldav/principal/user%40example.com/cal/notfound"
+                    .parse::<Uri>()
+                    .unwrap(),
+                "/caldav/principal/user%40example%2Ecom/nocal/hello.ics"
+                    .parse()
+                    .unwrap(),
+                "/asd%20asd".parse().unwrap(),
+                "/caldav/principal/user%40example.com/cal".parse().unwrap(),
             ]
         );
     }

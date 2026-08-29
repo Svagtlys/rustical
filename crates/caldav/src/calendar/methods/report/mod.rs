@@ -25,7 +25,6 @@ use rustical_dav_push::DavPushStore;
 use rustical_ical::CalendarObject;
 use rustical_store::{CalendarStore, auth::Principal};
 use rustical_xml::{XmlDeserialize, XmlDocument};
-use std::str::FromStr;
 use sync_collection::handle_sync_collection;
 use tracing::instrument;
 
@@ -55,7 +54,7 @@ impl ReportRequest {
 
 fn objects_response(
     objects: Vec<(String, CalendarObject)>,
-    not_found: Vec<String>,
+    not_found: Vec<Uri>,
     path: &str,
     principal: &str,
     puri: &impl PrincipalUri,
@@ -81,9 +80,8 @@ fn objects_response(
 
     let not_found_responses = not_found
         .into_iter()
-        .map(|path| ResponseElement {
-            // TODO: path is unescaped which is why this can fail!
-            href: Uri::from_str(&path).unwrap(),
+        .map(|href| ResponseElement {
+            href,
             status: Some(StatusCode::NOT_FOUND),
             propstat: vec![],
         })
@@ -195,7 +193,7 @@ mod tests {
                     )),
                 ], vec![])),
                 href: vec![
-                    "/caldav/user/user/6f787542-5256-401a-8db97003260da/ae7a998fdfd1d84a20391168962c62b".to_owned()
+                    "/caldav/user/user/6f787542-5256-401a-8db97003260da/ae7a998fdfd1d84a20391168962c62b".parse().unwrap()
                 ]
             })
         );
@@ -280,7 +278,7 @@ mod tests {
                     CalendarObjectPropWrapperName::Common(CommonPropertiesPropName::Displayname),
                 ], vec![(Some(NamespaceOwned("DAV:".to_owned())), "invalid-prop".to_string())])),
                 href: vec![
-                    "/caldav/user/user/6f787542-5256-401a-8db97003260da/ae7a998fdfd1d84a20391168962c62b".to_owned()
+                    "/caldav/user/user/6f787542-5256-401a-8db97003260da/ae7a998fdfd1d84a20391168962c62b".parse().unwrap()
                 ]
             })
         );
@@ -332,7 +330,7 @@ END:VCALENDAR"
                 )
                 .unwrap(),
             )],
-            vec!["/caldav/principal/user/not%20found.ics".to_string()],
+            vec!["/caldav/principal/user/not%20found.ics".parse().unwrap()],
             "/caldav/principal/user%40rustical.dev/cal",
             "user@rustical.dev",
             &CalDavPrincipalUri::new("/caldav"),

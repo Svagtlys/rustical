@@ -70,13 +70,13 @@ ResponseElement {
                                     [
                                         ResourcetypeInner(
                                             Some(
-                                                Namespace("DAV:"),
+                                                Namespace(DAV:),
                                             ),
                                             "collection",
                                         ),
                                         ResourcetypeInner(
                                             Some(
-                                                Namespace("DAV:"),
+                                                Namespace(DAV:),
                                             ),
                                             "principal",
                                         ),

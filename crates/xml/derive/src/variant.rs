@@ -75,8 +75,6 @@ impl Variant {
         }
         let ident = self.ident();
         let variant_name = self.xml_name();
-        let b_variant_name =
-            syn::LitByteStr::new(self.xml_name().value().as_bytes(), variant_name.span());
         let deserializer_type = self.deserializer_type();
 
         Some(
@@ -95,7 +93,7 @@ impl Variant {
                         panic!("tuple variants should contain exactly one element");
                     }
                     quote! {
-                        #b_variant_name => {
+                        #variant_name => {
                             let val = Some(<#deserializer_type as ::rustical_xml::XmlDeserialize>::deserialize(reader, start, empty)?);
                             Ok(Self::#ident(val))
                         }
@@ -106,7 +104,7 @@ impl Variant {
                         panic!("tuple variants should contain exactly one element");
                     }
                     quote! {
-                        #b_variant_name => {
+                        #variant_name => {
                             let val = <#deserializer_type as ::rustical_xml::XmlDeserialize>::deserialize(reader, start, empty)?;
                             Ok(Self::#ident(val))
                         }
@@ -114,7 +112,7 @@ impl Variant {
                 }
                 (false, Fields::Unit, _) => {
                     quote! {
-                        #b_variant_name => {
+                        #variant_name => {
                             // Make sure that content is still consumed
                             <() as ::rustical_xml::XmlDeserialize>::deserialize(reader, start, empty)?;
                             Ok(Self::#ident)

@@ -73,7 +73,7 @@ impl XmlSerialize for () {
         if let Some(tagname) = tagname.as_ref() {
             let mut bytes_start = BytesStart::new(tagname);
             if !has_prefix && let Some(ns) = &ns {
-                bytes_start.push_attribute((b"xmlns".as_ref(), ns.as_ref()));
+                bytes_start.push_attribute(("xmlns", ns.as_ref()));
             }
             writer.write_event(Event::Empty(bytes_start))?;
         }

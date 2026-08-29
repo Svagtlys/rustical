@@ -35,7 +35,6 @@ impl XmlDeserialize for Unparsed {
             ResolveResult::Bound(ns) => Some(ns.into()),
             ResolveResult::Unbound | ResolveResult::Unknown(_) => None,
         };
-        let tag_name = String::from_utf8_lossy(tag_name.as_ref()).to_string();
-        Ok(Self(ns, tag_name))
+        Ok(Self(ns, tag_name.as_ref().to_owned()))
     }
 }

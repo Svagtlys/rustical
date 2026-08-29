@@ -92,19 +92,17 @@ impl<T: ValueDeserialize> XmlDeserialize for T {
             let mut buf = Vec::new();
             loop {
                 match reader.read_event_into(&mut buf)? {
-                    Event::Text(bytes_text) => {
-                        let text = bytes_text.decode()?;
+                    Event::Text(text) => {
                         string.push_str(&text);
                     }
                     Event::CData(cdata) => {
-                        let text = String::from_utf8(cdata.to_vec())?;
-                        string.push_str(&text);
+                        string.push_str(&cdata);
                     }
                     Event::GeneralRef(gref) => {
                         if let Some(char) = gref.resolve_char_ref()? {
                             string.push(char);
                         } else if let Some(text) =
-                            quick_xml::escape::resolve_xml_entity(&gref.xml11_content()?)
+                            quick_xml::escape::resolve_xml_entity(&gref.xml11_content())
                         {
                             string.push_str(text);
                         } else {
@@ -142,7 +140,7 @@ impl<T: ValueSerialize> XmlSerialize for T {
         if let Some(tagname) = tagname.as_ref() {
             let mut bytes_start = BytesStart::new(tagname);
             if !has_prefix && let Some(ns) = &ns {
-                bytes_start.push_attribute((b"xmlns".as_ref(), ns.as_ref()));
+                bytes_start.push_attribute(("xmlns", ns.as_ref()));
             }
             writer.write_event(Event::Start(bytes_start))?;
         }

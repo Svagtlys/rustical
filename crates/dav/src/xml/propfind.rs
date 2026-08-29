@@ -55,8 +55,7 @@ impl<PN: XmlDeserialize> XmlDeserialize for PropElement<PN> {
                     match PN::deserialize(reader, start, empty) {
                         Ok(propname) => valid_props.push(propname),
                         Err(XmlError::InvalidVariant(_)) => {
-                            invalid_props
-                                .push((ns, String::from_utf8_lossy(name.as_ref()).to_string()));
+                            invalid_props.push((ns, name.as_ref().to_owned()));
                             // Consume content
                             Unparsed::deserialize(reader, start, empty)?;
                         }
@@ -64,11 +63,7 @@ impl<PN: XmlDeserialize> XmlDeserialize for PropElement<PN> {
                     }
                 }
                 Event::Text(text) => {
-                    if text
-                        .xml11_content()?
-                        .chars()
-                        .any(|chr| !chr.is_whitespace())
-                    {
+                    if text.xml11_content().chars().any(|chr| !chr.is_whitespace()) {
                         return Err(::rustical_xml::XmlError::UnsupportedEvent(
                             "unexpected text",
                         ));

@@ -44,7 +44,7 @@ impl<T: XmlRootTag + XmlDeserialize> XmlDocument for T {
                     let (ns, name) = reader.resolver().resolve_element(start.name());
                     let matches = match (Self::root_ns(), &ns, name) {
                         // Wrong tag
-                        (_, _, name) if name.as_ref() != Self::root_tag().as_bytes() => false,
+                        (_, _, name) if name.as_ref() != Self::root_tag() => false,
                         // Wrong namespace
                         (Some(root_ns), ns, _) if &ResolveResult::Bound(root_ns) != ns => false,
                         _ => true,
@@ -53,7 +53,7 @@ impl<T: XmlRootTag + XmlDeserialize> XmlDocument for T {
                         let root_ns = Self::root_ns();
                         return Err(XmlError::InvalidTag(
                             format!("{ns:?}"),
-                            String::from_utf8_lossy(name.as_ref()).to_string(),
+                            name.as_ref().to_string(),
                             format!("{root_ns:?}"),
                             Self::root_tag().to_owned(),
                         ));
@@ -63,11 +63,7 @@ impl<T: XmlRootTag + XmlDeserialize> XmlDocument for T {
                 }
                 Event::Eof => return Err(XmlError::Eof),
                 Event::Text(text) => {
-                    if text
-                        .xml11_content()?
-                        .chars()
-                        .any(|chr| !chr.is_whitespace())
-                    {
+                    if text.xml11_content().chars().any(|chr| !chr.is_whitespace()) {
                         return Err(XmlError::UnsupportedEvent("unexpected text"));
                     }
                 }

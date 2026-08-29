@@ -174,8 +174,6 @@ impl Field {
             .map(|ns| quote! { if ns == #ns });
 
         let field_name = self.xml_name();
-        let b_field_name =
-            syn::LitByteStr::new(self.xml_name().value().as_bytes(), field_name.span());
         let builder_field_ident = self.builder_field_ident();
         let deserializer = self.deserializer_type();
         let value = quote! { <#deserializer as rustical_xml::XmlDeserialize>::deserialize(reader, &start, empty)? };
@@ -188,7 +186,7 @@ impl Field {
         };
 
         Some(quote! {
-            (#namespace_match, #b_field_name) #namespace_condition => { #assignment; }
+            (#namespace_match, #field_name) #namespace_condition => { #assignment; }
         })
     }
 
@@ -233,18 +231,14 @@ impl Field {
         }
         let builder_field_ident = self.builder_field_ident();
         let field_name = self.xml_name();
-        let b_field_name =
-            syn::LitByteStr::new(self.xml_name().value().as_bytes(), field_name.span());
 
         let value = wrap_option_if_no_default(
-            quote! {
-            ::rustical_xml::ValueDeserialize::deserialize(attr.unescape_value()?.as_ref())?
-                },
+            quote! { ::rustical_xml::ValueDeserialize::deserialize(attr.normalized_value(::quick_xml::XmlVersion::Implicit1_0)?.as_ref())? },
             self.attrs.default.is_some(),
         );
 
         Some(quote! {
-            #b_field_name => {
+            #field_name => {
                 builder.#builder_field_ident = #value;
             }
         })
@@ -276,9 +270,7 @@ impl Field {
         let builder_field_ident = self.builder_field_ident();
 
         let value = wrap_option_if_no_default(
-            quote! {
-            rustical_xml::ValueDeserialize::deserialize(&String::from_utf8_lossy(name.as_ref()))?
-                    },
+            quote! { rustical_xml::ValueDeserialize::deserialize(name.as_ref())? },
             self.attrs.default.is_some(),
         );
 

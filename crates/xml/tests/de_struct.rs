@@ -151,7 +151,7 @@ fn test_struct_set() {
 
 #[test]
 fn test_struct_ns() {
-    const NS_HELLO: Namespace = Namespace(b"hello");
+    const NS_HELLO: Namespace = Namespace("hello");
 
     #[derive(Debug, XmlDeserialize, XmlRootTag, PartialEq)]
     #[xml(root = "document")]
@@ -166,7 +166,7 @@ fn test_struct_ns() {
 
 #[test]
 fn test_struct_attr() {
-    const NS_HELLO: Namespace = Namespace(b"hello");
+    const NS_HELLO: Namespace = Namespace("hello");
 
     #[derive(Debug, XmlDeserialize, XmlRootTag, PartialEq)]
     #[xml(root = "document")]
@@ -295,11 +295,11 @@ fn test_quickxml_bytesref() {
     let gt = quick_xml::events::BytesRef::new("gt");
     assert!(!gt.is_char_ref());
     let result = if !gt.is_char_ref() {
-        quick_xml::escape::resolve_xml_entity(&gt.xml11_content().unwrap())
+        quick_xml::escape::resolve_xml_entity(&gt.xml11_content())
             .unwrap()
             .to_string()
     } else {
-        gt.xml11_content().unwrap().to_string()
+        gt.xml11_content().to_string()
     };
     assert_eq!(result, ">");
 }

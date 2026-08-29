@@ -47,7 +47,7 @@ impl Enum {
                         #(#variant_branches),*
                         name => {
                             // Handle invalid variant name
-                            Err(rustical_xml::XmlError::InvalidVariant(String::from_utf8_lossy(name).to_string()))
+                            Err(rustical_xml::XmlError::InvalidVariant(name.to_owned()))
                         }
                     }
                 }

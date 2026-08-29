@@ -121,13 +121,13 @@ ResponseElement {
                                     [
                                         ResourcetypeInner(
                                             Some(
-                                                Namespace("DAV:"),
+                                                Namespace(DAV:),
                                             ),
                                             "collection",
                                         ),
                                         ResourcetypeInner(
                                             Some(
-                                                Namespace("urn:ietf:params:xml:ns:carddav"),
+                                                Namespace(urn:ietf:params:xml:ns:carddav),
                                             ),
                                             "addressbook",
                                         ),

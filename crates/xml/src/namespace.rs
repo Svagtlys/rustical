@@ -1,29 +1,29 @@
 use quick_xml::name::Namespace;
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Hash)]
-pub struct NamespaceOwned(pub Vec<u8>);
+pub struct NamespaceOwned(pub String);
 
 impl<'a> From<Namespace<'a>> for NamespaceOwned {
     fn from(value: Namespace<'a>) -> Self {
-        Self(value.0.to_vec())
+        Self(value.0.to_owned())
     }
 }
 
 impl From<String> for NamespaceOwned {
     fn from(value: String) -> Self {
-        Self(value.into_bytes())
+        Self(value)
     }
 }
 
 impl From<&str> for NamespaceOwned {
     fn from(value: &str) -> Self {
-        Self(value.as_bytes().to_vec())
+        Self(value.to_owned())
     }
 }
 
 impl<'a> From<&'a Namespace<'a>> for NamespaceOwned {
     fn from(value: &'a Namespace<'a>) -> Self {
-        Self(value.0.to_vec())
+        Self(value.0.to_owned())
     }
 }
 

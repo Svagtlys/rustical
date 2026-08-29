@@ -30,7 +30,7 @@ impl XmlSerialize for TagList {
         if let Some(tagname) = tagname.as_ref() {
             let mut bytes_start = BytesStart::new(tagname);
             if !has_prefix && let Some(ns) = &ns {
-                bytes_start.push_attribute((b"xmlns".as_ref(), ns.as_ref()));
+                bytes_start.push_attribute(("xmlns", ns.as_ref()));
             }
             writer.write_event(Event::Start(bytes_start))?;
         }
@@ -38,7 +38,7 @@ impl XmlSerialize for TagList {
         for (ns, tag) in &self.0 {
             let mut el = writer.create_element(tag);
             if let Some(ns) = ns {
-                el = el.with_attribute(("xmlns", String::from_utf8_lossy(&ns.0)));
+                el = el.with_attribute(("xmlns", ns.0.as_ref()));
             }
             el.write_empty()?;
         }

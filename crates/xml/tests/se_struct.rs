@@ -2,7 +2,6 @@ use quick_xml::Writer;
 use quick_xml::name::Namespace;
 use rustical_xml::{XmlRootTag, XmlSerialize, XmlSerializeRoot};
 use std::collections::HashMap;
-use xml_derive::XmlDeserialize;
 
 #[test]
 fn test_struct_document() {
@@ -12,7 +11,7 @@ fn test_struct_document() {
         child: Child,
     }
 
-    #[derive(Debug, XmlDeserialize, XmlSerialize, PartialEq, Default)]
+    #[derive(Debug, XmlSerialize, PartialEq, Default)]
     struct Child {
         #[xml(ty = "text")]
         text: String,
@@ -159,14 +158,14 @@ fn test_struct_serialize_with() {
 
 #[test]
 fn test_struct_tag_list() {
-    #[derive(Debug, XmlRootTag, XmlSerialize, XmlDeserialize, PartialEq)]
+    #[derive(Debug, XmlRootTag, XmlSerialize, PartialEq)]
     #[xml(root = "document")]
     struct Document {
         #[xml(ty = "untagged", flatten)]
         tags: Vec<Tag>,
     }
 
-    #[derive(Debug, XmlSerialize, XmlDeserialize, PartialEq)]
+    #[derive(Debug, XmlSerialize, PartialEq)]
     struct Tag {
         #[xml(ty = "tag_name")]
         name: String,
@@ -191,7 +190,7 @@ fn test_struct_tag_list() {
 
 #[test]
 fn test_struct_ns() {
-    const NS: Namespace = quick_xml::name::Namespace(b"NS:TEST:");
+    const NS: Namespace = quick_xml::name::Namespace("NS:TEST:");
 
     #[derive(Debug, XmlRootTag, XmlSerialize)]
     #[xml(root = "document")]
@@ -227,7 +226,7 @@ fn test_struct_tuple() {
 
 #[test]
 fn test_tuple_struct() {
-    const NS: Namespace = quick_xml::name::Namespace(b"NS:TEST:");
+    const NS: Namespace = quick_xml::name::Namespace("NS:TEST:");
 
     #[derive(Debug, XmlRootTag, XmlSerialize)]
     #[xml(root = "document")]

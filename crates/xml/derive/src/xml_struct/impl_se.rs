@@ -34,8 +34,8 @@ impl NamedStruct {
                 let field_index = field.target_field_index();
                 quote! {
                     ::quick_xml::events::attributes::Attribute {
-                        key: ::quick_xml::name::QName(#field_name.as_bytes()),
-                        value: ::std::borrow::Cow::from(::rustical_xml::ValueSerialize::serialize(&self.#field_index).into_bytes())
+                        key: ::quick_xml::name::QName(#field_name),
+                        value: ::std::borrow::Cow::from(::rustical_xml::ValueSerialize::serialize(&self.#field_index))
                     }
                 }
             });
@@ -77,7 +77,7 @@ impl NamedStruct {
                     } else {
                         format!("xmlns:{}", prefix.value())
                     };
-                    let a = syn::LitByteStr::new(attr_name.as_bytes(), prefix.span());
+                    let a = syn::LitStr::new(&attr_name, prefix.span());
                     quote! {
                          bytes_start.push_attribute((#a.as_ref(), #ns.as_ref()));
                     }
@@ -118,7 +118,7 @@ impl NamedStruct {
                         let mut bytes_start = BytesStart::new(tagname);
                         if !has_prefix {
                             if let Some(ns) = &ns {
-                                bytes_start.push_attribute((b"xmlns".as_ref(), ns.as_ref()));
+                                bytes_start.push_attribute(("xmlns", ns.as_ref()));
                             }
                         }
                         #(#prefix_attributes);*

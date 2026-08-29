@@ -278,7 +278,7 @@ mod tests {
                 prop: rustical_dav::xml::PropfindType::Prop(PropElement(vec![
                     CalendarObjectPropWrapperName::CalendarObject(CalendarObjectPropName::Getetag),
                     CalendarObjectPropWrapperName::Common(CommonPropertiesPropName::Displayname),
-                ], vec![(Some(NamespaceOwned(Vec::from("DAV:"))), "invalid-prop".to_string())])),
+                ], vec![(Some(NamespaceOwned("DAV:".to_owned())), "invalid-prop".to_string())])),
                 href: vec![
                     "/caldav/user/user/6f787542-5256-401a-8db97003260da/ae7a998fdfd1d84a20391168962c62b".to_owned()
                 ]

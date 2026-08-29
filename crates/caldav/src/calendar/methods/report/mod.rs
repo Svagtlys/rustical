@@ -82,6 +82,7 @@ fn objects_response(
     let not_found_responses = not_found
         .into_iter()
         .map(|path| ResponseElement {
+            // TODO: path is unescaped which is why this can fail!
             href: Uri::from_str(&path).unwrap(),
             status: Some(StatusCode::NOT_FOUND),
             propstat: vec![],

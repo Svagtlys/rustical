@@ -11,7 +11,6 @@ publish = false
 [dev-dependencies]
 rustical_store_sqlite = { workspace = true, features = ["test"] }
 rstest.workspace = true
-async-std.workspace = true
 serde_json.workspace = true
 insta.workspace = true
 

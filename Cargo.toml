@@ -140,7 +140,6 @@ ece = { version = "2.3", default-features = false, features = [
   "backend-openssl",
 ] }
 openssl = { version = "0.10", features = ["vendored"] }
-async-std = { version = "1.13", features = ["attributes"] }
 similar-asserts = "2.0"
 insta = { version = "1.48", features = ["filters"] }
 criterion = { version = "0.8", features = ["async_tokio"] }

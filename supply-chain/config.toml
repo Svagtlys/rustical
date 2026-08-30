@@ -59,38 +59,6 @@ criteria = "safe-to-deploy"
 version = "0.3.0"
 criteria = "safe-to-deploy"
 
-[[exemptions.async-attributes]]
-version = "1.1.2"
-criteria = "safe-to-run"
-
-[[exemptions.async-channel]]
-version = "1.9.0"
-criteria = "safe-to-run"
-
-[[exemptions.async-channel]]
-version = "2.5.0"
-criteria = "safe-to-run"
-
-[[exemptions.async-executor]]
-version = "1.14.0"
-criteria = "safe-to-run"
-
-[[exemptions.async-global-executor]]
-version = "2.4.1"
-criteria = "safe-to-run"
-
-[[exemptions.async-io]]
-version = "1.13.0"
-criteria = "safe-to-run"
-
-[[exemptions.async-lock]]
-version = "3.4.2"
-criteria = "safe-to-run"
-
-[[exemptions.async-std]]
-version = "1.13.2"
-criteria = "safe-to-run"
-
 [[exemptions.atoi]]
 version = "2.0.0"
 criteria = "safe-to-deploy"
@@ -167,10 +135,6 @@ criteria = "safe-to-deploy"
 version = "0.12.1"
 criteria = "safe-to-deploy"
 
-[[exemptions.blocking]]
-version = "1.7.0"
-criteria = "safe-to-run"
-
 [[exemptions.bs58]]
 version = "0.5.1"
 criteria = "safe-to-deploy"
@@ -242,10 +206,6 @@ criteria = "safe-to-deploy"
 [[exemptions.combine]]
 version = "4.6.8"
 criteria = "safe-to-deploy"
-
-[[exemptions.concurrent-queue]]
-version = "2.5.0"
-criteria = "safe-to-run"
 
 [[exemptions.console]]
 version = "0.16.4"
@@ -484,16 +444,8 @@ version = "0.11.0"
 criteria = "safe-to-deploy"
 
 [[exemptions.event-listener]]
-version = "2.5.3"
-criteria = "safe-to-run"
-
-[[exemptions.event-listener]]
 version = "5.4.2"
 criteria = "safe-to-deploy"
-
-[[exemptions.event-listener-strategy]]
-version = "0.5.4"
-criteria = "safe-to-run"
 
 [[exemptions.fastrand]]
 version = "2.5.0"
@@ -599,10 +551,6 @@ criteria = "safe-to-deploy"
 version = "0.3.4"
 criteria = "safe-to-deploy"
 
-[[exemptions.gloo-timers]]
-version = "0.3.0"
-criteria = "safe-to-run"
-
 [[exemptions.group]]
 version = "0.13.0"
 criteria = "safe-to-deploy"
@@ -622,10 +570,6 @@ criteria = "safe-to-deploy"
 [[exemptions.hashlink]]
 version = "0.11.1"
 criteria = "safe-to-deploy"
-
-[[exemptions.hermit-abi]]
-version = "0.3.9"
-criteria = "safe-to-run"
 
 [[exemptions.hkdf]]
 version = "0.12.4"
@@ -782,10 +726,6 @@ criteria = "safe-to-deploy"
 [[exemptions.keccak]]
 version = "0.2.2"
 criteria = "safe-to-deploy"
-
-[[exemptions.kv-log-macro]]
-version = "1.0.7"
-criteria = "safe-to-run"
 
 [[exemptions.libc]]
 version = "0.2.189"
@@ -1027,10 +967,6 @@ criteria = "safe-to-deploy"
 version = "0.2.17"
 criteria = "safe-to-deploy"
 
-[[exemptions.piper]]
-version = "0.2.5"
-criteria = "safe-to-run"
-
 [[exemptions.pkcs1]]
 version = "0.7.5"
 criteria = "safe-to-deploy"
@@ -1057,10 +993,6 @@ criteria = "safe-to-run"
 
 [[exemptions.plotters-svg]]
 version = "0.3.7"
-criteria = "safe-to-run"
-
-[[exemptions.polling]]
-version = "3.0.0"
 criteria = "safe-to-run"
 
 [[exemptions.polyval]]
@@ -1633,10 +1565,6 @@ criteria = "safe-to-deploy"
 
 [[exemptions.valuable]]
 version = "0.1.1"
-criteria = "safe-to-deploy"
-
-[[exemptions.value-bag]]
-version = "1.13.2"
 criteria = "safe-to-deploy"
 
 [[exemptions.version_check]]

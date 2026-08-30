@@ -9,9 +9,21 @@ version = "0.11.0"
 [[audits.web-push]]
 who = "Lennart Kämmle <18233294+lennart-k@users.noreply.github.com>"
 criteria = "safe-to-deploy"
-delta = "0.11.0 -> 0.11.0@git:46214267530531f9b48abd0862c3ccf0fb946da1"
+version = "0.11.0"
+notes = "It is a fork I maintain"
+
+[[audits.web-push]]
+who = "Lennart Kämmle <18233294+lennart-k@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.11.0"
+notes = "It's a fork I maintain"
+
+[[audits.web-push]]
+who = "Lennart Kämmle <18233294+lennart-k@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+delta = "0.11.0 -> 0.11.0@git:cc1c80086cb4b87c0b8d38f786463ec66bb0db97"
 importable = false
-notes = "The changes are part of my own fork (github.com/lennart-k/rust-web-push)"
+notes = "It's a fork I maintain"
 
 [[trusted.aho-corasick]]
 criteria = "safe-to-deploy"

@@ -1,6 +1,11 @@
 
 # cargo-vet audits file
 
+[[audits.matchit-serde]]
+who = "Lennart Kämmle <18233294+lennart-k@users.noreply.github.com>"
+criteria = "safe-to-deploy"
+version = "0.1.0"
+
 [[audits.web-push]]
 who = "Lennart Kämmle <18233294+lennart-k@users.noreply.github.com>"
 criteria = "safe-to-deploy"

@@ -2325,7 +2325,8 @@ checksum = "8863b587001c1b9a8a4e36008cebc6b3612cb1226fe2de94858e06092687b608"
 [[package]]
 name = "matchit-serde"
 version = "0.1.0"
-source = "git+https://github.com/lennart-k/matchit-serde?rev=94e4a5a#94e4a5a2a27b44fed9ddc165cea5fe56f52ec712"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8c797b1ba654911de7912d77dfd4ecda05b35154b37130b48a3156c40a307400"
 dependencies = [
  "derive_more",
  "matchit 0.9.2",

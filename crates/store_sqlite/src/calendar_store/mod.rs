@@ -1023,6 +1023,7 @@ impl CalendarWriteStore for SqliteCalendarStore {
         }
 
         let mut sync_token = None;
+        let mut webhook_events = Vec::new();
         for (object_id, object) in objects {
             sync_token = Some(
                 Self::log_object_operation(
@@ -1034,6 +1035,12 @@ impl CalendarWriteStore for SqliteCalendarStore {
                 )
                 .await?,
             );
+            webhook_events.push(WebhookEvent::CalendarObjectUpsert {
+                resource_id: cal_id.to_string(),
+                object_uid: object_id.to_string(),
+                timestamp: chrono::Utc::now().timestamp(),
+                ics_data: object.get_ics().to_string(),
+            });
             Self::_put_object(&mut *tx, principal, cal_id, &object_id, &object, overwrite).await?;
         }
 
@@ -1046,12 +1053,9 @@ impl CalendarWriteStore for SqliteCalendarStore {
             );
         }
 
-        let _ = self.webhook_sender.send(WebhookEvent::CalendarObjectUpsert {
-            resource_id: cal_id.to_string(),
-            object_uid: object_id.to_string(),
-            timestamp: chrono::Utc::now().timestamp(),
-            ics_data: object.get_ics().to_string(),
-        }).await;
+        for event in webhook_events {
+            let _ = self.webhook_sender.send(event).await;
+        }
 
         Ok(())
     }

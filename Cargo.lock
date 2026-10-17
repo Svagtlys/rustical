@@ -3996,7 +3996,7 @@ dependencies = [
 
 [[package]]
 name = "rustical_types"
-version = "0.10.5"
+version = "0.16.6"
 dependencies = [
  "serde",
  "serde_json",
@@ -4004,19 +4004,19 @@ dependencies = [
 
 [[package]]
 name = "rustical_webhooks"
-version = "0.10.5"
+version = "0.16.6"
 dependencies = [
  "axum",
- "base64 0.22.1",
- "hmac",
+ "base64 0.23.1",
+ "hmac 0.13.0",
  "http",
- "reqwest",
+ "reqwest 0.13.5",
  "rustical_ical",
  "rustical_store",
  "rustical_types",
  "serde",
  "serde_json",
- "sha2",
+ "sha2 0.11.0",
  "tokio",
  "uuid",
 ]

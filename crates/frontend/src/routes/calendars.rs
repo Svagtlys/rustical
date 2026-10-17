@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use crate::WebhookFeatureFlag;
 use crate::pages::user::{Section, UserPage};
 use askama::Template;
 use askama_web::WebTemplate;
@@ -19,11 +20,13 @@ pub struct CalendarsSection {
     pub user: Principal,
     pub calendars: Vec<(CollectionMetadata, Calendar)>,
     pub deleted_calendars: Vec<(CollectionMetadata, Calendar)>,
+    pub webhook_enabled: bool,
 }
 
 pub async fn route_calendars<CS: CalendarStore>(
     Path(user_id): Path<String>,
     Extension(cal_store): Extension<Arc<CS>>,
+    Extension(WebhookFeatureFlag(webhook_enabled)): Extension<WebhookFeatureFlag>,
     user: Principal,
 ) -> impl IntoResponse {
     if user_id != user.id {
@@ -67,6 +70,7 @@ pub async fn route_calendars<CS: CalendarStore>(
             user: user.clone(),
             calendars: calendar_infos,
             deleted_calendars: deleted_calendar_infos,
+            webhook_enabled,
         },
         user,
     }

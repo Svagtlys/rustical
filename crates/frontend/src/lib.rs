@@ -39,6 +39,9 @@ use crate::routes::{
 #[cfg(not(feature = "dev"))]
 use assets::{Assets, EmbedService};
 
+#[derive(Clone, Copy)]
+pub struct WebhookFeatureFlag(pub bool);
+
 pub fn frontend_router<
     AP: AuthenticationProvider,
     CS: CalendarStore,
@@ -50,6 +53,7 @@ pub fn frontend_router<
     addr_store: Arc<AS>,
     frontend_config: FrontendConfig,
     oidc_config: Option<OidcConfig>,
+    webhook_enabled: bool,
 ) -> Router {
     let user_router = Router::new()
         .route("/", get(route_get_home))
@@ -120,6 +124,9 @@ pub fn frontend_router<
         .layer(Extension(addr_store))
         .layer(Extension(frontend_config))
         .layer(Extension(oidc_config));
+
+    // Provide webhook feature flag to templates/handlers
+    router = router.layer(Extension(WebhookFeatureFlag(webhook_enabled)));
 
     Router::new()
         .nest(prefix, router)

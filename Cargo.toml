@@ -53,6 +53,7 @@ rustical_webhooks = { path = "./crates/webhooks/" }
 rustical_types = { path = "./crates/types/" }
 
 base64ct = "1.8"
+base64 = "0.23"
 pbkdf2 = { version = "0.13", features = ["phc"] }
 matchit = "0.9"
 uuid = { version = "1.19", features = ["v4", "fast-rng"] }

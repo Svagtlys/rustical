@@ -8,6 +8,7 @@ use rustical_store::{
 };
 use std::sync::Arc;
 
+use crate::WebhookFeatureFlag;
 use crate::pages::user::{Section, UserPage};
 
 impl Section for AddressbooksSection {
@@ -22,11 +23,13 @@ pub struct AddressbooksSection {
     pub user: Principal,
     pub addressbooks: Vec<(CollectionMetadata, Option<Calendar>, Addressbook)>,
     pub deleted_addressbooks: Vec<(CollectionMetadata, Option<Calendar>, Addressbook)>,
+    pub webhook_enabled: bool,
 }
 
 pub async fn route_addressbooks<AS: AddressbookStore + PrefixedCalendarStore>(
     Path(user_id): Path<String>,
     Extension(addr_store): Extension<Arc<AS>>,
+    Extension(WebhookFeatureFlag(webhook_enabled)): Extension<WebhookFeatureFlag>,
     user: Principal,
 ) -> impl IntoResponse {
     if user_id != user.id {
@@ -90,6 +93,7 @@ pub async fn route_addressbooks<AS: AddressbookStore + PrefixedCalendarStore>(
             user: user.clone(),
             addressbooks: addressbook_infos,
             deleted_addressbooks: deleted_addressbook_infos,
+            webhook_enabled,
         },
         user,
     }

@@ -134,6 +134,7 @@ pub fn make_app<
             addr_store,
             frontend_config,
             oidc_config,
+            webhook_enabled,
         ));
     }
 

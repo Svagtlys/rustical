@@ -227,7 +227,7 @@ impl Default for DavPushConfig {
         }
     }
 }
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 #[serde(deny_unknown_fields, default)]
 pub struct WebhookConfig {
     #[serde(default = "default_true")]
